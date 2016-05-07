@@ -39,7 +39,8 @@ Run the following command to start up the server:
 $ $GOPATH/bin/moordep -cert $CERTPATH -key $KEYPATH -config $CFGPATH
 ```
 
-If you do not get an error, everything should be fine.
+If you do not get an error, everything should be fine. I recommend running the job detached from your terminal using
+commands like `disown`.
 
 # Testing
 You can use **cURL** to test your moordep installation.
