@@ -15,6 +15,7 @@ var (
 	certPath   = flag.String("cert", "server.pem", "Certificate file for HTTPS")
 	keyPath    = flag.String("key", "server.key", "Key file for HTTPS")
 	configPath = flag.String("config", "config.json", "Configuration file")
+	debugMode  = flag.Bool("debug", false, "Enables debug mode (no HTTPS)")
 	cfg        = Config{
 		Host:  "localhost",
 		Port:  8080,
@@ -79,5 +80,9 @@ func main() {
 	hostport := fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)
 
 	http.HandleFunc("/", HookHandler)
-	log.Fatal(http.ListenAndServeTLS(hostport, *certPath, *keyPath, nil))
+	if *debugMode {
+		log.Fatal(http.ListenAndServe(hostport, nil))
+	} else {
+		log.Fatal(http.ListenAndServeTLS(hostport, *certPath, *keyPath, nil))
+	}
 }
