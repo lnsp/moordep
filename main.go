@@ -47,7 +47,7 @@ func HookHandler(w http.ResponseWriter, r *http.Request) {
 	if action, ok := cfg.Hooks[hook]; ok {
 		cmd := exec.Command(action)
 		cmd.Stdout = os.Stdout
-		err := cmd.Run()
+		err := cmd.Start()
 
 		if err != nil {
 			log.Fatal(err)
