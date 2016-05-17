@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -35,6 +36,7 @@ func HookHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Not implemented", http.StatusNotImplemented)
 		return
 	}
+	defer r.Body.Close()
 
 	query := r.URL.Query()
 	token := query.Get("token")
@@ -48,11 +50,25 @@ func HookHandler(w http.ResponseWriter, r *http.Request) {
 	if action, ok := cfg.Hooks[hook]; ok {
 		cmd := exec.Command(action)
 		cmd.Stdout = os.Stdout
-		err := cmd.Start()
 
+		pipe, err := cmd.StdinPipe()
+		defer pipe.Close()
+		if err != nil {
+			log.Fatal(err)
+			http.Error(w, "Failed to create standard input pipe", http.StatusInternalServerError)
+			return
+		}
+
+		err = cmd.Start()
 		if err != nil {
 			log.Fatal(err)
 			http.Error(w, "Failed to run hook command", http.StatusInternalServerError)
+			return
+		}
+		_, err = io.Copy(pipe, r.Body)
+		if err != nil {
+			log.Fatal(err)
+			http.Error(w, "Error while copying request to stdin", http.StatusInternalServerError)
 			return
 		}
 
