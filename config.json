@@ -3,6 +3,7 @@
     "port": 8080,
     "token": "default",
     "hooks": {
-        "hello": "scripts/hello.sh"
+        "hello": "scripts/hello.sh",
+		"echo": "scripts/echo.sh"
     }
 }
